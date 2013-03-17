@@ -1,0 +1,43 @@
+extends layout
+
+block content
+	div.container
+		h1 Backbone table
+		div.row-fluid
+			div.span8
+				div#table-container
+
+block js
+	script(type='text/javascript', src='javascripts/jquery.min.js')
+	script(type='text/javascript', src='bootstrap/js/bootstrap.js')
+	script(type='text/javascript', src='javascripts/json2.js')
+	script(type='text/javascript', src='javascripts/underscore.js')
+	script(type='text/javascript', src='javascripts/backbone-min.js')
+	script(type='text/javascript', src='javascripts/Backbone.Table.js')
+	script(type='text/javascript', src='javascripts/Backbone.Pagination.js')
+	script(type='text/javascript')
+		$('#table-container').addClass('backbone-table-container');
+
+		var ExampleCollection = Backbone.Collection.extend({url: '/collection/'});
+		
+		var collection = new ExampleCollection();
+		
+		var columns = [
+			{
+				'key': 'id',
+				'label': 'ID'
+			},
+			{
+				'key': 'name',
+				'label': 'Name'
+			},
+			{
+				'key': 'value',
+				'label': 'Value'
+			}
+		];
+		
+		collection.fetch({add: true, update: true, remove: true});
+		
+		$('#table-container').append(new Backbone.Table({collection: collection, columns: columns}).render().el);
+		
