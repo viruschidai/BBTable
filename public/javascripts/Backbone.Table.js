@@ -30,12 +30,12 @@
 	});
 	
 	var HeaderCell = Backbone.HeaderCell = Backbone.View.extend({
-        tagName: "td",
-        
-        initialize: function(options) {
-    		this.column = options.column;
+		tagName: "td",
+		
+		initialize: function(options) {
+			this.column = options.column;
 		},
-        
+		
 		render: function() {
 			this.$el.html(this.column.get('label'));
 			return this;
@@ -65,12 +65,12 @@
 	});
 	
 	var TableHeaderRow = Backbone.TableHeaderRow = Backbone.View.extend({
-        tagName: "tr",
-        
-        initialize: function(options) {
-    		this.columns = options.columns;
+		tagName: "tr",
+		
+		initialize: function(options) {
+			this.columns = options.columns;
 		},
-        
+		
 		render: function() {
 			_.each(this.columns.models, function(column) {
 				var cell = new HeaderCell({
@@ -116,7 +116,6 @@
 		},
 		
 		insertRow: function(model) {
-			console.log('insert row');
 			var row = new TableRow({
 				columns: this.columns,
 				model: model
@@ -133,6 +132,7 @@
 		},	
 		
 		render: function() {
+			console.log("render");
 			this.$el.empty();
 			
 			_.each(this.collection.models, function(model) {

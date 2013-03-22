@@ -13,14 +13,15 @@ block js
 	script(type='text/javascript', src='javascripts/json2.js')
 	script(type='text/javascript', src='javascripts/underscore.js')
 	script(type='text/javascript', src='javascripts/backbone-min.js')
-	script(type='text/javascript', src='javascripts/Backbone.Table.js')
+	script(type='text/javascript', src='javascripts/Backbone.PageableCollection.js')
 	script(type='text/javascript', src='javascripts/Backbone.Pagination.js')
+	script(type='text/javascript', src='javascripts/Backbone.Table.js')
 	script(type='text/javascript')
 		$('#table-container').addClass('backbone-table-container');
 
-		var ExampleCollection = Backbone.Collection.extend({url: '/collection/'});
+		var ExampleCollection = Backbone.PagebleCollection.extend({url: '/collection/'});
 		
-		var collection = new ExampleCollection();
+		var collection = new ExampleCollection({});
 		
 		var columns = [
 			{
@@ -37,7 +38,9 @@ block js
 			}
 		];
 		
-		collection.fetch({add: true, update: true, remove: true});
+		$('#table-container').append(
+			new Backbone.Table({collection: collection, columns: columns}).render().el
+		);
 		
-		$('#table-container').append(new Backbone.Table({collection: collection, columns: columns}).render().el);
+		collection.fetchCurrentPage();
 		
