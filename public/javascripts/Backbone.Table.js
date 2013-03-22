@@ -29,7 +29,13 @@
 		}
 	});
 	
-	var HeaderCell = Cell.extend({
+	var HeaderCell = Backbone.HeaderCell = Backbone.View.extend({
+        tagName: "td",
+        
+        initialize: function(options) {
+    		this.column = options.column;
+		},
+        
 		render: function() {
 			this.$el.html(this.column.get('label'));
 			return this;
@@ -58,7 +64,13 @@
 		}
 	});
 	
-	var TableHeaderRow = Backbone.TableHeaderRow = TableRow.extend({
+	var TableHeaderRow = Backbone.TableHeaderRow = Backbone.View.extend({
+        tagName: "tr",
+        
+        initialize: function(options) {
+    		this.columns = options.columns;
+		},
+        
 		render: function() {
 			_.each(this.columns.models, function(column) {
 				var cell = new HeaderCell({
