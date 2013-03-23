@@ -13,13 +13,11 @@ block js
 	script(type='text/javascript', src='javascripts/json2.js')
 	script(type='text/javascript', src='javascripts/underscore.js')
 	script(type='text/javascript', src='javascripts/backbone-min.js')
-	script(type='text/javascript', src='javascripts/Backbone.PageableCollection.js')
-	script(type='text/javascript', src='javascripts/Backbone.Pagination.js')
 	script(type='text/javascript', src='javascripts/Backbone.Table.js')
 	script(type='text/javascript')
 		$('#table-container').addClass('backbone-table-container');
 
-		var ExampleCollection = Backbone.PagebleCollection.extend({url: '/collection/'});
+		var ExampleCollection = BackTable.PageableCollection.extend({url: '/collection/'});
 		
 		var collection = new ExampleCollection({});
 		
@@ -39,8 +37,11 @@ block js
 		];
 		
 		$('#table-container').append(
-			new Backbone.Table({collection: collection, columns: columns}).render().el
+			new BackTable.Table({collection: collection, columns: columns}).render().el
 		);
 		
 		collection.fetchCurrentPage();
 		
+		var paginator = new BackTable.PaginatorView({model: collection.paginationModel});
+		
+		$('#table-container').append(paginator.render().el);		
