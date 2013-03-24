@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry excluding="public/javascripts/|routes/" kind="src" path=""/>
-	<classpathentry kind="src" path="public/javascripts"/>
-	<classpathentry kind="src" path="routes"/>
-	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="output" path=""/>
-</classpath>
