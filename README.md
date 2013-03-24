@@ -28,28 +28,28 @@ var collection = new ExampleCollection({});
 
 var columns = [
 {
-'key': 'Zipcode',
-'label': 'Zipcode'
+  'key': 'Zipcode',
+  'label': 'Zipcode'
 },
 {
-'key': 'County',
-'label': 'County'
+  'key': 'County',
+  'label': 'County'
 },
 {
-'key': 'State',
-'label': 'State'
+  'key': 'State',
+  'label': 'State'
 },
 {
-'key': 'City',
-'label': 'City'
+  'key': 'City',
+  'label': 'City'
 },
 {
-'key': 'Longitude',
-'label': 'Longitude'
+  'key': 'Longitude',
+  'label': 'Longitude'
 },
 {
-'key': 'Latitude',
-'label': 'Latitude'
+  'key': 'Latitude',
+  'label': 'Latitude'
 }
 ];
 
@@ -59,7 +59,7 @@ var paginatorBottom = new BackTable.PaginatorView({model: collection.paginationM
 $('#table-container').append(paginatorTop.render().el);
 	
 $('#table-container').append(
-new BackTable.Table({collection: collection, columns: columns}).render().el
+  new BackTable.Table({collection: collection, columns: columns}).render().el
 );
 
 $('#table-container').append(paginatorBottom.render().el);
