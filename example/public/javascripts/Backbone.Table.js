@@ -187,6 +187,7 @@
 				+ " 	<li class='page <%= page.cssClass %>'><a href='#'><%= page.label %></a></li>"
 				+ " <% }) %>"
 				+ "	</ul>"
+				+ "<span class='page-records-info label label-info pull-right'><%= startIndex %> - <%= endIndex %> of <%= totalRecords %></span>"
 				+ "</div>"
 		),
 		
@@ -202,14 +203,19 @@
 		render: function() {
 			this.$el.empty();
 			var pages = this.getDisplayPages(),
-				pageSize = this.model.get("pageSize");
+				pageSize = this.model.get("pageSize"),
+				currentPage = this.model.get("currentPage"),
+				totalRecords = this.model.get("totalRecords");
 			
 			var paginatorInfo = {
-				displayedPage: this.model.get("currentPage") + 1,
+				displayedPage: currentPage + 1,
 				pageSizes: this.pageSizeOptions,
 				pages: pages,
 				totalPages: this.model.get("totalPages"),
-				pageSize: pageSize === 0 ? "All" : pageSize
+				pageSize: pageSize === 0 ? "All" : pageSize,
+				totalRecords: totalRecords,
+				startIndex: Math.min(currentPage * pageSize + 1, totalRecords),
+				endIndex: pageSize === 0 ? totalRecords : Math.min((currentPage + 1) * pageSize, totalRecords)
 			};
 			
 			this.$el.html(this.template(paginatorInfo));

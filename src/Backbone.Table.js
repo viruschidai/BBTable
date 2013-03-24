@@ -317,6 +317,14 @@
 	
 	var Cell = BackTable.Cell = Backbone.View.extend({
 		tagName: "td",
+
+		toRaw: function() {
+			return this.$el.html();
+		},
+		
+		fromRaw: function() {
+			return this.model.get(this.column.get('key'));
+		},
 		
 		initialize: function(options) {
 			this.column = options.column;
@@ -324,7 +332,7 @@
 		},
 		
 		render: function() {
-			this.$el.html(this.model.get(this.column.get('key')));
+			this.$el.html(this.fromRaw());
 			return this;
 		}
 	});
