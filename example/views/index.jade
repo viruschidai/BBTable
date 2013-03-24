@@ -36,12 +36,15 @@ block js
 			}
 		];
 		
+		var paginatorTop = new BackTable.PaginatorView({model: collection.paginationModel});
+		var paginatorBottom = new BackTable.PaginatorView({model: collection.paginationModel});
+		
+		$('#table-container').append(paginatorTop.render().el);	
+		
 		$('#table-container').append(
 			new BackTable.Table({collection: collection, columns: columns}).render().el
 		);
 		
+		$('#table-container').append(paginatorBottom.render().el);	
+		
 		collection.fetchCurrentPage();
-		
-		var paginator = new BackTable.PaginatorView({model: collection.paginationModel});
-		
-		$('#table-container').append(paginator.render().el);		

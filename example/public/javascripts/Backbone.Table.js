@@ -151,7 +151,11 @@
 			var pageSize = this.paginationModel.get("pageSize"),
 				pageStart = pageIndex * pageSize;
 		
-			return this.fullCollection.models.slice(pageStart, pageStart + pageSize);
+			if (pageSize === 0) {
+				return this.fullCollection.models;
+			} else {
+				return this.fullCollection.models.slice(pageStart, pageStart + pageSize);	
+			}
 		}
 	});
 	
@@ -197,14 +201,15 @@
 		
 		render: function() {
 			this.$el.empty();
-			var pages = this.getDisplayPages();
+			var pages = this.getDisplayPages(),
+				pageSize = this.model.get("pageSize");
 			
 			var paginatorInfo = {
 				displayedPage: this.model.get("currentPage") + 1,
 				pageSizes: this.pageSizeOptions,
 				pages: pages,
 				totalPages: this.model.get("totalPages"),
-				pageSize: this.model.get("pageSize")
+				pageSize: pageSize === 0 ? "All" : pageSize
 			};
 			
 			this.$el.html(this.template(paginatorInfo));
