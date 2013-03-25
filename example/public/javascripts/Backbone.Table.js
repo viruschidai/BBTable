@@ -1,15 +1,31 @@
+/**
+ * @author billg(viruschidai@gmail.com)
+ * This is a backbone.js based table widget.
+ */
 (function(){
-	var BackTable;
+	var BBTable;
 	
 	if (typeof exports !== 'undefined') {
-		BackTable = exports;
+		BBTable = exports;
 	} else {
-		BackTable = this.BackTable = {};
+		BBTable = this.BBTable = {};
 	}
 
-	BackTable.VERSION = '0.0.1';
+	BBTable.VERSION = '0.0.1';
 	
-	var PaginationModel = BackTable.PaginationModel = Backbone.Model.extend({
+	/*
+	 * Make sure attributes are validated when set. It is no longer the default behaviour of Backbone.js.
+	 */
+	BBTable.Model = Backbone.Model.extend({
+		set: function(key, val, options) {
+			options = options || {};
+			options.validate = true;
+			
+			Backbone.Model.prototype.set.call(this, key, val, options);
+		}
+	});
+	
+	var PaginationModel = BBTable.PaginationModel = BBTable.Model.extend({
 		defaults: {
 			pageSize: 10,
 			currentPage: 0,
@@ -36,13 +52,6 @@
 			});
 		},
 		
-		set: function(key, val, options) {
-			options = options || {};
-			options.validate = true;
-			
-			Backbone.Model.prototype.set.call(this, key, val, options);
-		},
-		
 		validate: function(attrs, options) {
 			if(attrs.pageSize < 0) {
 				return "Invalid pageSize value [" + attrs.pageSize + "]";
@@ -54,16 +63,17 @@
 		}
 	});
 	
-	var SortingModel = BackTable.SortingModel = Backbone.Model.extend({
+	var SortingModel = BBTable.SortingModel = BBTable.Model.extend({
 		defaults: {
-			sort: "id",
+			sort: null,
 			desc: 1
 		}
 	});
 	
-	var PageableCollection = BackTable.PageableCollection = Backbone.Collection.extend({
+	var PageableCollection = BBTable.PageableCollection = Backbone.Collection.extend({
 		initialize: function(options) {
 			this.paginationModel = new PaginationModel();
+			this.sortingModel = new SortingModel();
 			
 			var PaginationStrategy = options.paginationStrategy || ClientSidePaginationStrategy;
 			
@@ -91,7 +101,7 @@
 		
 	});
 	
-	var PaginationStrategy = BackTable.PaginationStrategy = function(options) {
+	var PaginationStrategy = BBTable.PaginationStrategy = function(options) {
 		this.initialize.apply(this, arguments);
 	};
 	
@@ -159,7 +169,61 @@
 		}
 	});
 	
-	var PaginatorView = BackTable.PaginatorView = Backbone.View.extend({
+	var PageSizeSelectorView = BBTable.PaginatorView = Backbone.View.extend({
+		tagName: "div",
+		className: "pagesize-selector",
+		
+		pageSizeOptions: ['All', 10, 20],
+		
+		template: _.template(
+				"<div class='pagination'>"
+				+ "<ul class='pagesize-selector'>"
+				+ "	<% _.each(pageSizes, function(size) { %>"
+				+ "	<li class='page-size <%= pageSize==size ? \'active\' : \'\' %>'><a href='#'><%= size %></a></li>"
+				+ " <% }) %>"
+				+ "</ul>"
+				+ "<span class='page-records-info label label-info pull-right'><%= startIndex %> - <%= endIndex %> of <%= totalRecords %></span>"
+				+ "</div>"),
+				
+		events: {
+			"click .page-size": "onClickChangePageSize"
+		},
+					
+		onClickChangePageSize: function(ev) {
+			var pageSizeStr = $(ev.target).text().trim(); 
+			var pageSize = this.convertPageSize(pageSizeStr);
+			
+			this.model.set("pageSize", pageSize);
+		},
+		
+		convertPageSize: function(pageSizeStr) {
+			var pageSize = 0;
+			
+			if (pageSizeStr == "All") {
+				pageSize = 0;
+			} else {
+				pageSize = parseInt(pageSizeStr);
+			};
+			
+			return pageSize;
+		},
+		
+		render: function() {
+			this.$el.empty();
+			var pageSize = this.model.get("pageSize");
+			
+			var pageSizeInfo = {
+				pageSizes: this.pageSizeOptions,
+				pageSize: pageSize === 0 ? "All" : pageSize
+			};
+			
+			this.$el.html(this.template(pageSizeInfo));
+			return this;
+		}
+		
+	});
+	
+	var PaginatorView = BBTable.PaginatorView = Backbone.View.extend({
 		tagName: "div",
 		
 		windowSize: 5,
@@ -177,23 +241,17 @@
 		
 		template: _.template(
 				"<div class='pagination'>"
-				+ "<ul class='pagesize-selector'>"
-				+ "	<% _.each(pageSizes, function(size) { %>"
-				+ "	<li class='page-size <%= pageSize==size ? \'active\' : \'\' %>'><a href='#'><%= size %></a></li>"
-				+ " <% }) %>"
-				+ "</ul>"
 				+ "	<ul class='page-selector'>"
 				+ "	<% _.each(pages, function(page) { %>"
 				+ " 	<li class='page <%= page.cssClass %>'><a href='#'><%= page.label %></a></li>"
 				+ " <% }) %>"
 				+ "	</ul>"
-				+ "<span class='page-records-info label label-info pull-right'><%= startIndex %> - <%= endIndex %> of <%= totalRecords %></span>"
+				+ "<span class='page-records-info label label-info pull-right'><%= startIndex %> - <%= endIndex %> of <%= totalRecords %></span>"				
 				+ "</div>"
 		),
 		
 		events: {
-			"click .page": "onClickChangePage",
-			"click .page-size": "onClickChangePageSize"
+			"click .page": "onClickChangePage"
 		},
 		
 		initialize: function() {
@@ -279,29 +337,12 @@
 			}
 			
 			return page;
-		},
-		
-		onClickChangePageSize: function(ev) {
-			var pageSizeStr = $(ev.target).text().trim(); 
-			var pageSize = this.convertPageSize(pageSizeStr);
-			
-			this.model.set("pageSize", pageSize);
-		},
-		
-		convertPageSize: function(pageSizeStr) {
-			var pageSize = 0;
-			
-			if (pageSizeStr == "All") {
-				pageSize = 0;
-			} else {
-				pageSize = parseInt(pageSizeStr);
-			};
-			
-			return pageSize;
 		}
+		
+	
 	});
 	
-	var Column = BackTable.Column = Backbone.Model.extend({
+	var Column = BBTable.Column = Backbone.Model.extend({
 		defaults: {
 			key: undefined,
 			label: undefined,
@@ -313,12 +354,20 @@
 		}
 	});
 	
-	var Columns = BackTable.Columns = Backbone.Collection.extend({
+	var Columns = BBTable.Columns = Backbone.Collection.extend({
 		model: Column
 	});
 	
-	var Cell = BackTable.Cell = Backbone.View.extend({
+	var Cell = BBTable.Cell = Backbone.View.extend({
 		tagName: "td",
+
+		toRaw: function() {
+			return this.$el.html();
+		},
+		
+		fromRaw: function() {
+			return this.model.get(this.column.get('key'));
+		},
 		
 		initialize: function(options) {
 			this.column = options.column;
@@ -326,12 +375,12 @@
 		},
 		
 		render: function() {
-			this.$el.html(this.model.get(this.column.get('key')));
+			this.$el.html(this.fromRaw());
 			return this;
 		}
 	});
 	
-	var HeaderCell = BackTable.HeaderCell = Backbone.View.extend({
+	var HeaderCell = BBTable.HeaderCell = Backbone.View.extend({
 		tagName: "td",
 		
 		initialize: function(options) {
@@ -344,7 +393,7 @@
 		}
 	});
 	
-	var TableRow = BackTable.TableRow = Backbone.View.extend({
+	var TableRow = BBTable.TableRow = Backbone.View.extend({
 		tagName: "tr",
 		
 		initialize: function(options) {
@@ -366,7 +415,7 @@
 		}
 	});
 	
-	var TableHeaderRow = BackTable.TableHeaderRow = Backbone.View.extend({
+	var TableHeaderRow = BBTable.TableHeaderRow = Backbone.View.extend({
 		tagName: "tr",
 		
 		initialize: function(options) {
@@ -386,7 +435,7 @@
 		}
 	});
 
-	var TableHeader = BackTable.TableHeader = Backbone.View.extend({
+	var TableHeader = BBTable.TableHeader = Backbone.View.extend({
 		tagName: "thead",
 		
 		initialize: function(options) {
@@ -406,7 +455,7 @@
 		}
 	});
 	
-	var TableBody = BackTable.TableBody = Backbone.View.extend({
+	var TableBody = BBTable.TableBody = Backbone.View.extend({
 		tagName: "tbody",
 		
 		initialize: function(options) {
@@ -449,7 +498,7 @@
 		}
 	});
 	
-	var Table = BackTable.Table = Backbone.View.extend({
+	var Table = BBTable.Table = Backbone.View.extend({
 		
 		tagName: "table",
 		

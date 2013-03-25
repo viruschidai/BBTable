@@ -20,7 +20,7 @@ block js
 		var CityModel = Backbone.Model.extend({
 			idAttribute: "Zipcode"
 		});
-		var ExampleCollection = BackTable.PageableCollection.extend({url: '/collection/', model: CityModel});
+		var ExampleCollection = BBTable.PageableCollection.extend({url: '/collection/', model: CityModel});
 		
 		var collection = new ExampleCollection({});
 		
@@ -51,13 +51,13 @@ block js
 			}
 		];
 		
-		var paginatorTop = new BackTable.PaginatorView({model: collection.paginationModel});
-		var paginatorBottom = new BackTable.PaginatorView({model: collection.paginationModel});
+		var paginatorTop = new BBTable.PaginatorView({model: collection.paginationModel});
+		var paginatorBottom = new BBTable.PaginatorView({model: collection.paginationModel});
 		
 		$('#table-container').append(paginatorTop.render().el);	
 		
 		$('#table-container').append(
-			new BackTable.Table({collection: collection, columns: columns}).render().el
+			new BBTable.Table({collection: collection, columns: columns}).render().el
 		);
 		
 		$('#table-container').append(paginatorBottom.render().el);	

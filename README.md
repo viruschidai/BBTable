@@ -1,6 +1,6 @@
 # BBTable.js
 
-BBTable.js is a backbone.js based table widget. 
+BBTable.js is a backbone.js based table widget. It is currently under active development. 
 
 ## Features
 
@@ -19,7 +19,7 @@ BBTable.js is a backbone.js based table widget.
 
 ```javascript
 var CityModel = Backbone.Model.extend({
-idAttribute: "Zipcode"
+	idAttribute: "Zipcode"
 });
 
 var ExampleCollection = BackTable.PageableCollection.extend({url: '/collection/', model: CityModel});
@@ -66,3 +66,9 @@ $('#table-container').append(paginatorBottom.render().el);
 	
 collection.fetchCurrentPage();
 ```
+## Live example
+Have a look at [Pagination table](http://bbtable.aws.af.cm/).
+
+## License
+Copyright (c) 2013 Bill Gao  
+Source code licensed under the [MIT license](LICENSE-MIT "MIT License").
