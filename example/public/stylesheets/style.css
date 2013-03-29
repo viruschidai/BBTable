@@ -6,12 +6,3 @@ font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 a {
 color: #00B7FF;
 }
-
-.pagesize-selector {
-	width: 20%;
-}
-
-.page-selector {
-	width: 60%;
-	text-align: center;
-}

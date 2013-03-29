@@ -1,5 +1,8 @@
 extends layout
 
+block css
+	link(rel='stylesheet', href='stylesheets/BBTable.css')
+
 block content
 	div.container
 		h1 Backbone table
@@ -13,7 +16,7 @@ block js
 	script(type='text/javascript', src='javascripts/json2.js')
 	script(type='text/javascript', src='javascripts/underscore.js')
 	script(type='text/javascript', src='javascripts/backbone-min.js')
-	script(type='text/javascript', src='javascripts/Backbone.Table.js')
+	script(type='text/javascript', src='javascripts/BBTable.js')
 	script(type='text/javascript')
 		$('#table-container').addClass('backbone-table-container');
 
@@ -27,27 +30,33 @@ block js
 		var columns = [
 			{
 				'key': 'Zipcode',
-				'label': 'Zipcode'
+				'label': 'Zipcode',
+				'sortable': true
 			},
 			{
 				'key': 'County',
-				'label': 'County'
+				'label': 'County',
+				'sortable': true
 			},
 			{
 				'key': 'State',
-				'label': 'State'
+				'label': 'State',
+				'sortable': true
 			},
 			{
 				'key': 'City',
-				'label': 'City'
+				'label': 'City',
+				'sortable': true
 			},
 			{
 				'key': 'Longitude',
-				'label': 'Longitude'
+				'label': 'Longitude',
+				'sortable': true
 			},
 			{
 				'key': 'Latitude',
-				'label': 'Latitude'
+				'label': 'Latitude',
+				'sortable': true
 			}
 		];
 		
