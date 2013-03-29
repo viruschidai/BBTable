@@ -200,7 +200,7 @@
         }
     });
 
-    var PageSizeSelectorView = BBTable.PaginatorView = Backbone.View.extend({
+    var PageSizeSelectorView = BBTable.PageSizeSelectorView = Backbone.View.extend({
         tagName: "div",
         className: "pagesize-selector",
 
@@ -213,11 +213,14 @@
                 + "	<li class='page-size <%= pageSize==size ? \'active\' : \'\' %>'><a href='#'><%= size %></a></li>"
                 + " <% }) %>"
                 + "</ul>"
-                + "<span class='page-records-info label label-info pull-right'><%= startIndex %> - <%= endIndex %> of <%= totalRecords %></span>"
                 + "</div>"),
 
         events: {
             "click .page-size": "onClickChangePageSize"
+        },
+        
+        initialize: function() {
+            this.listenTo(this.model, "change", this.render);
         },
 
         onClickChangePageSize: function(ev) {
@@ -571,13 +574,13 @@
                 this.$el.append(rowHtml);
             } else {
                 var index = this.collection.indexOf(model);
-                this.$el.find('> tr').eq(index-1).after(rowHtml);
+                this.$el.find('>tr').eq(index-1).after(rowHtml);
             }
         },
 
         render: function() {
             this.$el.empty();
-
+            this.$el.css({'display': 'none'});
             _.each(this.collection.models, function(model) {
                 var row = new TableRow({
                     columns: this.columns,
@@ -586,7 +589,8 @@
 
                 this.$el.append(row.render().el);
             }, this);
-
+            this.$el.css({'display': ''});
+            
             return this;
         }
     });
@@ -595,7 +599,7 @@
 
         tagName: "table",
 
-        className: "bbtable table table-striped table-bordered",
+        className: "bbtable",
 
         header: null,
 

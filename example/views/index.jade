@@ -62,13 +62,15 @@ block js
 		
 		var paginatorTop = new BBTable.PaginatorView({model: collection.paginationModel});
 		var paginatorBottom = new BBTable.PaginatorView({model: collection.paginationModel});
+		var pagesizeSelector = new BBTable.PageSizeSelectorView({model: collection.paginationModel});
+
+		$('#table-container').append(pagesizeSelector.render().el);	
+		$('#table-container').append(paginatorTop.render().el);
 		
-		$('#table-container').append(paginatorTop.render().el);	
+		var tableView = new BBTable.Table({collection: collection, columns: columns}).render().el;
+		$(tableView).addClass('table table-striped table-bordered');
 		
-		$('#table-container').append(
-			new BBTable.Table({collection: collection, columns: columns}).render().el
-		);
-		
+		$('#table-container').append(tableView);
 		$('#table-container').append(paginatorBottom.render().el);	
 		
 		collection.fetchCurrentPage();

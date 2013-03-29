@@ -3,6 +3,6 @@ i.icon-unsorted {
 	background-position: 0, 0;	
 }
 
-.table th.sortable {
+.bbtable th.sortable {
 	cursor: pointer;
 }
