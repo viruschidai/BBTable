@@ -5,8 +5,8 @@ BBTable.js is a backbone.js based table widget. It is currently under active dev
 ## Features
 
 1. Support sorting 
-2. Support pagination (Both client side and Server side)
-3. Support editing (To be built)
+2. Support pagination (Currently only support client side pagination. Will soon add support for server side pagination)
+3. Support editing (Currently only have one input cell editor. But it is really easy to add your own editor)
 
 ## Requires
 
