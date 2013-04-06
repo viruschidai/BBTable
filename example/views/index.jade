@@ -6,6 +6,9 @@ block css
 block content
 	div.container
 		h1 Backbone table
+		
+		p 
+			i double click to edit a cell, press 'enter' to save, 'esc' to cancel
 		div.row-fluid
 			div.span8
 				div#table-container
@@ -31,32 +34,38 @@ block js
 			{
 				'key': 'Zipcode',
 				'label': 'Zipcode',
-				'sortable': true
+				'sortable': true,
+				'cellEditor': BBTable.InputCellEditor
 			},
 			{
 				'key': 'County',
 				'label': 'County',
-				'sortable': true
+				'sortable': true,
+				'cellEditor': BBTable.InputCellEditor
 			},
 			{
 				'key': 'State',
 				'label': 'State',
-				'sortable': true
+				'sortable': true,
+				'cellEditor': BBTable.InputCellEditor
 			},
 			{
 				'key': 'City',
 				'label': 'City',
-				'sortable': true
+				'sortable': true,
+				'cellEditor': BBTable.InputCellEditor
 			},
 			{
 				'key': 'Longitude',
 				'label': 'Longitude',
-				'sortable': true
+				'sortable': true,
+				'cellEditor': BBTable.InputCellEditor
 			},
 			{
 				'key': 'Latitude',
 				'label': 'Latitude',
-				'sortable': true
+				'sortable': true,
+				'cellEditor': BBTable.InputCellEditor
 			}
 		];
 		

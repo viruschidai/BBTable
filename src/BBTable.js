@@ -64,7 +64,6 @@
     });
 
     function getDefaultComparator(key, dir) {
-    	console.log(dir);
     	return function(left, right) {
     		var a = left.get(key),
     			b = right.get(key);
@@ -121,9 +120,13 @@
         },
         
         sort: function() {
-        	console.log("sorting");
         	this.paginationStrategy.sort(this.sortingModel);
         	this.fetchCurrentPage();
+        },
+        
+        destroy: function() {
+        	this.paginationStrategy.destroy();
+        	Backbone.Collection.prototype.destroy.call(this);
         }
 
     });
@@ -384,7 +387,17 @@
             editable: true,
             renderable: true,
             formatter: undefined,
-            celleditor: undefined
+            cellEditor: undefined
+        },
+        
+        initialize: function() {
+        	var cellEditor = this.get("cellEditor");
+        	
+        	if (cellEditor) {
+        		this.on(this.get("key") + ":edit", function(cell, column, model) {
+        			var editor = new cellEditor({model: model, column: column, cell: cell});
+        		}, cellEditor);
+        	}
         }
     });
 
@@ -394,6 +407,10 @@
 
     var Cell = BBTable.Cell = Backbone.View.extend({
         tagName: "td",
+        
+        events: {
+        	"dblclick": "edit"
+        },
 
         toRaw: function() {
             return this.$el.html();
@@ -411,6 +428,10 @@
         render: function() {
             this.$el.html(this.fromRaw());
             return this;
+        },
+        
+        edit: function(ev) {
+        	this.column.trigger(this.column.get("key") + ":edit", this.$el, this.column, this.model);
         }
     });
 
@@ -493,9 +514,12 @@
         initialize: function(options) {
             this.columns = options.columns;
             this.model = options.model;
+            this.listenTo(this.model, "change", this.render);
         },
 
         render: function() {
+        	this.$el.empty();
+        	
             _.each(this.columns.models, function(column) {
                 var cell = new Cell({
                     column: column,
@@ -580,7 +604,7 @@
 
         render: function() {
             this.$el.empty();
-            this.$el.css({'display': 'none'});
+            
             _.each(this.collection.models, function(model) {
                 var row = new TableRow({
                     columns: this.columns,
@@ -589,7 +613,6 @@
 
                 this.$el.append(row.render().el);
             }, this);
-            this.$el.css({'display': ''});
             
             return this;
         }
@@ -630,8 +653,7 @@
         _convertColumns: function(columns) {
             if (!(columns instanceof Columns)) {
                 var converted_columns = _.map(columns, function(column) {
-                    var model = new Column();
-                    model.set(column);
+                    var model = new Column(column);
                     return model;
                 }, this);
 
@@ -639,6 +661,64 @@
             };
 
             return columns;
+        }
+    });
+    
+    var CellEditor = BBTable.CellEditor = Backbone.View.extend({
+    	tagName: "div",
+    	
+    	className: "cell-editor"
+    });
+    
+    var InputCellEditor = BBTable.InputCellEditor = CellEditor.extend({
+	    events: {
+    		"blur input": "blur",
+    		"keypress input": "keypress"
+    	},
+    	
+    	template: _.template("<input type='text' value=<%= value %>>"),
+    	
+    	initialize: function(options) {
+    		this.cell = options.cell;
+    		this.column = options.column;
+    		
+    		this.render();
+    		$(document.body).append(this.el);
+        	this.$input = this.$el.find("input");
+        	this.show();
+    	},
+    	
+        render: function() {
+        	this.$el.append(this.template({value: this.model.get(this.column.get("key"))}));
+        	return this;
+        },
+        
+        keypress: function(ev) {
+        	if(ev.keyCode === 13) {
+        		this.updateModel();
+        		this.remove();
+        	} else if (ev.keyCode === 27) {
+        		this.remove();
+        	}
+        },
+        
+        show: function() {
+        	this.$el.offset(this.cell.offset());
+        	this.$input.outerHeight(this.cell.outerHeight());
+        	this.$input.outerWidth(this.cell.outerWidth());
+        	
+        	this.$input.focus();
+        	this.$input.select();
+        },
+        
+        // Update model with edited value
+        updateModel: function() {
+        	this.model.set(this.column.get("key"), this.$input.val());
+        },
+        
+        blur: function() {
+        	this.updateModel();
+        	this.remove();
         }
     });
 

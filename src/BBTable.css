@@ -6,3 +6,13 @@ i.icon-unsorted {
 .bbtable th.sortable {
 	cursor: pointer;
 }
+
+.cell-editor {
+	position: absolute;
+	display: inline-block;
+}
+
+.cell-editor input{
+	margin: 0px;
+}
+
