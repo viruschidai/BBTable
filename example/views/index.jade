@@ -5,13 +5,20 @@ block css
 
 block content
 	div.container
-		h1 Backbone table
-		
-		p 
-			i double click to edit a cell, press 'enter' to save, 'esc' to cancel
-		div.row-fluid
-			div.span8
-				div#table-container
+		div.hero-unit
+			h1 BBTable
+			p BBTable is a backbone.js powered table widget. It is simple to use and easy to extend.  
+			p.pull-right
+				a.btn.btn-primary(href='https://github.com/viruschidai/Backbone.Table') Download »
+			div.clearfix
+
+		div.main-content
+			h2 Example
+			p
+				i double click to edit a cell, press 'enter' to save, 'esc' to cancel
+			div.row-fluid
+				div.span12
+					div#table-container
 
 block js
 	script(type='text/javascript', src='javascripts/jquery.min.js')
@@ -27,9 +34,9 @@ block js
 			idAttribute: "Zipcode"
 		});
 		var ExampleCollection = BBTable.PageableCollection.extend({url: '/collection/', model: CityModel});
-		
+
 		var collection = new ExampleCollection({});
-		
+
 		var columns = [
 			{
 				'key': 'Zipcode',
@@ -68,18 +75,18 @@ block js
 				'cellEditor': BBTable.InputCellEditor
 			}
 		];
-		
+
 		var paginatorTop = new BBTable.PaginatorView({model: collection.paginationModel});
 		var paginatorBottom = new BBTable.PaginatorView({model: collection.paginationModel});
 		var pagesizeSelector = new BBTable.PageSizeSelectorView({model: collection.paginationModel});
 
-		$('#table-container').append(pagesizeSelector.render().el);	
+		$('#table-container').append(pagesizeSelector.render().el);
 		$('#table-container').append(paginatorTop.render().el);
-		
+
 		var tableView = new BBTable.Table({collection: collection, columns: columns}).render().el;
 		$(tableView).addClass('table table-striped table-bordered');
-		
+
 		$('#table-container').append(tableView);
-		$('#table-container').append(paginatorBottom.render().el);	
-		
+		$('#table-container').append(paginatorBottom.render().el);
+
 		collection.fetchCurrentPage();

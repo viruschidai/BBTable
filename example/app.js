@@ -2,7 +2,7 @@
  * Module dependencies.
  */
 
-var express = require('express'), routes = require('./routes'), user = require('./routes/user'), http = require('http'), path = require('path'), __ = require('underscore');
+var express = require('express'), routes = require('./routes'), example = require('./routes/example'), http = require('http'), path = require('path'), __ = require('underscore');
 
 var app = express();
 var us_cities = require('./data/us_cities');
@@ -26,7 +26,9 @@ app.configure('development', function() {
 });
 
 app.get('/', routes.index);
-app.get('/users', user.list);
+app.get('/examples', example.list);
+app.get('/documentation', example.list);
+app.get('/contact', example.list);
 
 app.all('/collection/*', function(req, res, next) {
 	if (!req.session.us_cities) {
