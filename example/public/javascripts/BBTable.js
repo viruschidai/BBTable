@@ -79,6 +79,37 @@
     		return 0;
     	};
     };
+
+    function fastProcessJobs(jobs, process, batchSize, context) {
+        var iterations = Math.floor(jobs.length / batchSize),
+        leftover = jobs.length % batchSize,
+        i = 0
+        timers = [];
+
+        if (leftover > 0){
+            do {
+                process.call(context, jobs[i++]);
+            } while (--leftover > 0);
+        }
+
+        function batchJob(startIndex) {
+            return function() {
+                for (var j=0; j<batchSize; j++) {
+                    process.call(context, jobs[startIndex + j]);    
+                }    
+            };
+        }
+
+        var totalIterations = iterations;
+        
+        do {
+            var batchFunc = batchJob(i);
+            timers.push(setTimeout(batchFunc, 10));
+            i += batchSize;
+        } while (--iterations > 0);
+
+        return timers;
+    };
     
     var SortingModel = BBTable.SortingModel = BBTable.Model.extend({
         defaults: {
@@ -581,6 +612,7 @@
         initialize: function(options) {
             this.columns = options.columns;
             this.collection = options.collection;
+            this.renderTimers = [];
 
             this.listenTo(this.collection, "reset", this.render);
             this.listenTo(this.collection, "add", this.insertRow);
@@ -602,17 +634,25 @@
             }
         },
 
+        clearTimers: function() {
+            for(var i=0; i<this.renderTimers.length; i++) {
+                clearTimeout(this.renderTimers[i]);
+            };
+            this.renderTimers = [];
+        },
+
         render: function() {
             this.$el.empty();
+            this.clearTimers();          
             
-            _.each(this.collection.models, function(model) {
+            this.renderTimers = fastProcessJobs(this.collection.models, function(model) {
                 var row = new TableRow({
                     columns: this.columns,
                     model: model
                 });
 
                 this.$el.append(row.render().el);
-            }, this);
+            }, 100, this);
             
             return this;
         }

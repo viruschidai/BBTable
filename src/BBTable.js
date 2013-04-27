@@ -64,20 +64,51 @@
     });
 
     function getDefaultComparator(key, dir) {
-    	return function(left, right) {
-    		var a = left.get(key),
-    			b = right.get(key);
-    		
-    		if (a > b) {
-    			return dir === "asc" ? 1 : -1;
-    		}
-    		
-    		if (a < b){
-    			return dir === "desc" ? 1 : -1;
-    		}
-    		
-    		return 0;
-    	};
+        return function(left, right) {
+            var a = left.get(key),
+                b = right.get(key);
+            
+            if (a > b) {
+                return dir === "asc" ? 1 : -1;
+            }
+            
+            if (a < b){
+                return dir === "desc" ? 1 : -1;
+            }
+            
+            return 0;
+        };
+    };
+
+    function fastProcessJobs(jobs, process, batchSize, context) {
+        var iterations = Math.floor(jobs.length / batchSize),
+        leftover = jobs.length % batchSize,
+        i = 0
+        timers = [];
+
+        if (leftover > 0){
+            do {
+                process.call(context, jobs[i++]);
+            } while (--leftover > 0);
+        }
+
+        function batchJob(startIndex) {
+            return function() {
+                for (var j=0; j<batchSize; j++) {
+                    process.call(context, jobs[startIndex + j]);    
+                }    
+            };
+        }
+
+        var totalIterations = iterations;
+        
+        do {
+            var batchFunc = batchJob(i);
+            timers.push(setTimeout(batchFunc, 10));
+            i += batchSize;
+        } while (--iterations > 0);
+
+        return timers;
     };
     
     var SortingModel = BBTable.SortingModel = BBTable.Model.extend({
@@ -120,13 +151,13 @@
         },
         
         sort: function() {
-        	this.paginationStrategy.sort(this.sortingModel);
-        	this.fetchCurrentPage();
+            this.paginationStrategy.sort(this.sortingModel);
+            this.fetchCurrentPage();
         },
         
         destroy: function() {
-        	this.paginationStrategy.destroy();
-        	Backbone.Collection.prototype.destroy.call(this);
+            this.paginationStrategy.destroy();
+            Backbone.Collection.prototype.destroy.call(this);
         }
 
     });
@@ -198,8 +229,8 @@
         },
         
         sort: function(sortingModel) {
-        	this.fullCollection.comparator = sortingModel.get("comparator");
-        	this.fullCollection.sort({sort: false});
+            this.fullCollection.comparator = sortingModel.get("comparator");
+            this.fullCollection.sort({sort: false});
         }
     });
 
@@ -212,8 +243,8 @@
         template: _.template(
                 "<div class='pagination'>"
                 + "<ul class='pagesize-selector'>"
-                + "	<% _.each(pageSizes, function(size) { %>"
-                + "	<li class='page-size <%= pageSize==size ? \'active\' : \'\' %>'><a href='#'><%= size %></a></li>"
+                + " <% _.each(pageSizes, function(size) { %>"
+                + " <li class='page-size <%= pageSize==size ? \'active\' : \'\' %>'><a href='#'><%= size %></a></li>"
                 + " <% }) %>"
                 + "</ul>"
                 + "</div>"),
@@ -278,11 +309,11 @@
 
         template: _.template(
                 "<div class='pagination'>"
-                + "	<ul class='page-selector'>"
-                + "	<% _.each(pages, function(page) { %>"
-                + " 	<li class='page <%= page.cssClass %>'><a href='#'><%= page.label %></a></li>"
+                + " <ul class='page-selector'>"
+                + " <% _.each(pages, function(page) { %>"
+                + "     <li class='page <%= page.cssClass %>'><a href='#'><%= page.label %></a></li>"
                 + " <% }) %>"
-                + "	</ul>"
+                + " </ul>"
                 + "<span class='page-records-info label label-info pull-right'><%= startIndex %> - <%= endIndex %> of <%= totalRecords %></span>"
                 + "</div>"
         ),
@@ -391,13 +422,13 @@
         },
         
         initialize: function() {
-        	var cellEditor = this.get("cellEditor");
-        	
-        	if (cellEditor) {
-        		this.on(this.get("key") + ":edit", function(cell, column, model) {
-        			var editor = new cellEditor({model: model, column: column, cell: cell});
-        		}, cellEditor);
-        	}
+            var cellEditor = this.get("cellEditor");
+            
+            if (cellEditor) {
+                this.on(this.get("key") + ":edit", function(cell, column, model) {
+                    var editor = new cellEditor({model: model, column: column, cell: cell});
+                }, cellEditor);
+            }
         }
     });
 
@@ -409,7 +440,7 @@
         tagName: "td",
         
         events: {
-        	"dblclick": "edit"
+            "dblclick": "edit"
         },
 
         toRaw: function() {
@@ -431,7 +462,7 @@
         },
         
         edit: function(ev) {
-        	this.column.trigger(this.column.get("key") + ":edit", this.$el, this.column, this.model);
+            this.column.trigger(this.column.get("key") + ":edit", this.$el, this.column, this.model);
         }
     });
 
@@ -439,16 +470,16 @@
         tagName: "th",
         
         events: {
-        	"click": "sort"
+            "click": "sort"
         },
         
-		template: _.template("<div>"
-				+ "<%= content %>"
-				+ "<% if (sortable) { %>"
-				+ "<div class='sorting sorting-<%= dir %> pull-right'>"
-				+		"<i class='<%= sortingClass %>'>"
-				+ "</div>"
-				+ "<% } %>"),
+        template: _.template("<div>"
+                + "<%= content %>"
+                + "<% if (sortable) { %>"
+                + "<div class='sorting sorting-<%= dir %> pull-right'>"
+                +       "<i class='<%= sortingClass %>'>"
+                + "</div>"
+                + "<% } %>"),
 
         initialize: function(options) {
             this.column = options.column;
@@ -458,53 +489,53 @@
         },
 
         render: function() {
-			var sortingClass = this._getSortingClass(),
-				dir = this.sortingModel.get("dir"),
-				sortable = this.column.get("sortable");
+            var sortingClass = this._getSortingClass(),
+                dir = this.sortingModel.get("dir"),
+                sortable = this.column.get("sortable");
 
-			this.$el.html(this.template({
-				content: this.column.get("label"),
-				sortable: sortable,
-				sortingClass: sortingClass,
-				dir: dir
-			}));
-			
-			if (sortable) {
-				this.$el.addClass("sortable");	
-			};
+            this.$el.html(this.template({
+                content: this.column.get("label"),
+                sortable: sortable,
+                sortingClass: sortingClass,
+                dir: dir
+            }));
+            
+            if (sortable) {
+                this.$el.addClass("sortable");  
+            };
 
             return this;
         },
         
         sort: function() {
-        	if (this.column.get("sortable")) {
-        		var dir = this.$el.find("div.sorting").attr("class").split(" ")[1].split("-")[1].trim(),
-        			key = this.column.get("key"); 
-            		
-        		if ( (dir === "none") || (dir === "desc") ) {
-        			dir = "asc";
-        		} else {
-        			dir = "desc";
-        		}
-        				
-            	this.sortingModel.set({
-            		"dir": dir,
-            		"sortKey": key,
-            		"comparator": this.column.get("comparator") ? this.column.get("comparator") : getDefaultComparator(key, dir)
-            	});
-        	}
+            if (this.column.get("sortable")) {
+                var dir = this.$el.find("div.sorting").attr("class").split(" ")[1].split("-")[1].trim(),
+                    key = this.column.get("key"); 
+                    
+                if ( (dir === "none") || (dir === "desc") ) {
+                    dir = "asc";
+                } else {
+                    dir = "desc";
+                }
+                        
+                this.sortingModel.set({
+                    "dir": dir,
+                    "sortKey": key,
+                    "comparator": this.column.get("comparator") ? this.column.get("comparator") : getDefaultComparator(key, dir)
+                });
+            }
         },
 
         _getSortingClass: function() {
-        	if (this.sortingModel.get("sortKey") != this.column.get("key")) {
-        		return "icon-unsorted";
-        	};
-        		
-			switch (this.sortingModel.get("dir")) {
-				case "asc": return "icon-chevron-up";
-				case "desc": return "icon-chevron-down";
-				default: return "icon-unsorted";
-			}
+            if (this.sortingModel.get("sortKey") != this.column.get("key")) {
+                return "icon-unsorted";
+            };
+                
+            switch (this.sortingModel.get("dir")) {
+                case "asc": return "icon-chevron-up";
+                case "desc": return "icon-chevron-down";
+                default: return "icon-unsorted";
+            }
         }
     });
 
@@ -518,8 +549,8 @@
         },
 
         render: function() {
-        	this.$el.empty();
-        	
+            this.$el.empty();
+            
             _.each(this.columns.models, function(column) {
                 var cell = new Cell({
                     column: column,
@@ -581,6 +612,7 @@
         initialize: function(options) {
             this.columns = options.columns;
             this.collection = options.collection;
+            this.renderTimers = [];
 
             this.listenTo(this.collection, "reset", this.render);
             this.listenTo(this.collection, "add", this.insertRow);
@@ -602,17 +634,25 @@
             }
         },
 
+        clearTimers: function() {
+            for(var i=0; i<this.renderTimers.length; i++) {
+                clearTimeout(this.renderTimers[i]);
+            };
+            this.renderTimers = [];
+        },
+
         render: function() {
             this.$el.empty();
+            this.clearTimers();          
             
-            _.each(this.collection.models, function(model) {
+            this.renderTimers = fastProcessJobs(this.collection.models, function(model) {
                 var row = new TableRow({
                     columns: this.columns,
                     model: model
                 });
 
                 this.$el.append(row.render().el);
-            }, this);
+            }, 100, this);
             
             return this;
         }
@@ -665,60 +705,60 @@
     });
     
     var CellEditor = BBTable.CellEditor = Backbone.View.extend({
-    	tagName: "div",
-    	
-    	className: "cell-editor"
+        tagName: "div",
+        
+        className: "cell-editor"
     });
     
     var InputCellEditor = BBTable.InputCellEditor = CellEditor.extend({
-	    events: {
-    		"blur input": "blur",
-    		"keypress input": "keypress"
-    	},
-    	
-    	template: _.template("<input type='text' value=<%= value %>>"),
-    	
-    	initialize: function(options) {
-    		this.cell = options.cell;
-    		this.column = options.column;
-    		
-    		this.render();
-    		$(document.body).append(this.el);
-        	this.$input = this.$el.find("input");
-        	this.show();
-    	},
-    	
+        events: {
+            "blur input": "blur",
+            "keypress input": "keypress"
+        },
+        
+        template: _.template("<input type='text' value=<%= value %>>"),
+        
+        initialize: function(options) {
+            this.cell = options.cell;
+            this.column = options.column;
+            
+            this.render();
+            $(document.body).append(this.el);
+            this.$input = this.$el.find("input");
+            this.show();
+        },
+        
         render: function() {
-        	this.$el.append(this.template({value: this.model.get(this.column.get("key"))}));
-        	return this;
+            this.$el.append(this.template({value: this.model.get(this.column.get("key"))}));
+            return this;
         },
         
         keypress: function(ev) {
-        	if(ev.keyCode === 13) {
-        		this.updateModel();
-        		this.remove();
-        	} else if (ev.keyCode === 27) {
-        		this.remove();
-        	}
+            if(ev.keyCode === 13) {
+                this.updateModel();
+                this.remove();
+            } else if (ev.keyCode === 27) {
+                this.remove();
+            }
         },
         
         show: function() {
-        	this.$el.offset(this.cell.offset());
-        	this.$input.outerHeight(this.cell.outerHeight());
-        	this.$input.outerWidth(this.cell.outerWidth());
-        	
-        	this.$input.focus();
-        	this.$input.select();
+            this.$el.offset(this.cell.offset());
+            this.$input.outerHeight(this.cell.outerHeight());
+            this.$input.outerWidth(this.cell.outerWidth());
+            
+            this.$input.focus();
+            this.$input.select();
         },
         
         // Update model with edited value
         updateModel: function() {
-        	this.model.set(this.column.get("key"), this.$input.val());
+            this.model.set(this.column.get("key"), this.$input.val());
         },
         
         blur: function() {
-        	this.updateModel();
-        	this.remove();
+            this.updateModel();
+            this.remove();
         }
     });
 

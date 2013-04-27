@@ -16,3 +16,7 @@ i.icon-unsorted {
 	margin: 0px;
 }
 
+table{
+	table-layout: fixed;
+}
+
