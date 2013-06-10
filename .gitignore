@@ -1,2 +1,4 @@
 .settings/
 .externalToolBuilders/
+node_modules
+*.swp
